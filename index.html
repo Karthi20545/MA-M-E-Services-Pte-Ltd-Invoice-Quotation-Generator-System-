@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MA M&E Services - Invoice System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        h3{
+            color: blueviolet;
+        }
+        .document-container {
+            background-color: white;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .company-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .company-logo-container {
+            display: flex;
+            align-items: center;
+        }
+        .company-logo {
+            max-width: 80px;
+            max-height: 60px;
+            margin-right: 15px;
+        }
+        .company-details {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: blueviolet;
+        }
+        .document-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .document-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .to-section {
+            margin-bottom: 20px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .items-table th {
+            background-color: #f2f2f2;
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .items-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .total-section {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .amount-in-words {
+            margin-top: 10px;
+            font-style: italic;
+            text-align: right;
+        }
+        .notes-section {
+            margin-top: 30px;
+        }
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .signature-box {
+            text-align: center;
+            width: 200px;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            margin: 0 auto;
+            width: 150px;
+            padding-top: 5px;
+        }
+        .authorized-signature {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .info-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        .form-control-plaintext.amount {
+            text-align: right;
+            padding-right: 10px;
+        }
+        .items-table td:nth-child(3),
+        .items-table td:nth-child(4),
+        .items-table td:nth-child(5),
+        .items-table td:nth-child(6) {
+            text-align: right;
+        }
+        .items-table th:nth-child(3),
+        .items-table th:nth-child(4),
+        .items-table th:nth-child(5),
+        .items-table th:nth-child(6) {
+            text-align: right;
+        }
+        .total-section div {
+            padding-right: 10px;
+        }
+        .logo-preview {
+            max-width: 100px;
+            max-height: 60px;
+            margin-top: 10px;
+        }
+        .history-section {
+            margin-top: 20px;
+        }
+        .history-item {
+            cursor: pointer;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .history-item:hover {
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .invoice-container, .service-report-container {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .signature-area {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .signature-pad {
+            border: 1px solid #ddd;
+            width: 100%;
+            height: 150px;
+        }
+        @media print {
+            body {
+                background-color: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .document-container, .service-report-print {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            .company-logo {
+                max-width: 120px;
+                max-height: 80px;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+            /* Hide tabs and navigation when printing */
+            .nav-tabs, .header, footer {
+                display: none !important;
+            }
+            /* Show only the active tab content */
+            .tab-pane:not(.active) {
+                display: none !important;
+            }
+            .tab-pane.active {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header text-center no-print">
+        <h1>MA M&E Services Pte Ltd</h1>
+        <p class="mb-0">Invoice/Quotation Generator System</p>
+    </div>
+
+    <div class="container">
+        <ul class="nav nav-tabs no-print" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="invoice-tab" data-bs-toggle="tab" data-bs-target="#invoice" type="button" role="tab">Invoice</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="service-report-tab" data-bs-toggle="tab" data-bs-target="#service-report" type="button" role="tab">Service Report</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">History</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- Invoice Tab -->
+            <div class="tab-pane fade show active" id="invoice" role="tabpanel">
+                <div class="container my-4 no-print">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Company Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="companyName" class="form-label">Company Name</label>
+                                            <input type="text" class="form-control" id="companyName" value="MA M&E SERVICES PTE LTD">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="companyUen" class="form-label">UEN Number</label>
+                                            <input type="text" class="form-control" id="companyUen" value="12345678">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="companyLogo" class="form-label">Company Logo</label>
+                                            <input type="file" class="form-control" id="companyLogo" accept="image/*">
+                                            <img id="logoPreview" class="logo-preview" alt="Logo Preview" style="display: none;">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="companyOffice" class="form-label">Office</label>
+                                            <input type="text" class="form-control" id="companyOffice" value="Singapore">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label for="companyAddress" class="form-label">Company Address</label>
+                                            <textarea class="form-control" id="companyAddress" rows="2">111 North Bridge Road, Singapore</textarea>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="gstRate" class="form-label">GST Rate (%)</label>
+                                            <input type="number" class="form-control" id="gstRate" value="8" min="0" max="100" step="0.01">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="gstRegistration" class="form-label">GST Registration No.</label>
+                                            <input type="text" class="form-control" id="gstRegistration" placeholder="GST Registration Number">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Customer Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="customerName" class="form-label">To</label>
+                                            <input type="text" class="form-control" id="customerName" placeholder="Customer Name">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="customerAttn" class="form-label">Attn</label>
+                                            <input type="text" class="form-control" id="customerAttn" placeholder="Attention Person">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="customerTel" class="form-label">Tel</label>
+                                            <input type="text" class="form-control" id="customerTel" placeholder="Phone Number">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="customerAddress" class="form-label">Address</label>
+                                            <textarea class="form-control" id="customerAddress" rows="2" placeholder="Customer Address"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Items</h5>
+                                    <button class="btn btn-success btn-sm" id="addItemBtn">Add Item</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table" id="itemsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>S.No</th>
+                                                    <th>Description</th>
+                                                    <th width="80px">QTY</th>
+                                                    <th width="120px">PRICE/UNIT</th>
+                                                    <th width="80px">GST%</th>
+                                                    <th width="120px">AMOUNT</th>
+                                                   </tr>
+                                            </thead>
+                                            <tbody id="itemsTableBody">
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td><textarea class="form-control item-desc" rows="4">Supplied materials and Man power to perform PU Jacketing work
+
+a. Fabricated and installed new GI Cladding for chilled water pipe (Estimated 6 meters)
+
+b. Installed cladding box for U drop and elbow (Total 8 sets)
+
+c. Injected PU Chemical for all location
+
+d. Ensured that the chemical firm all the places properly
+
+f. Housekeeping work has been done
+
+</textarea></td>
+                                                    <td><input type="number" class="form-control quantity" min="1" value="1"></td>
+                                                    <td><input type="number" class="form-control rate" min="0" step="0.01" value="3050"></td>
+                                                    <td><input type="number" class="form-control gst-percent" min="0" max="100" step="0.01" value="8"></td>
+                                                    <td><input type="text" class="form-control-plaintext amount" value="$3,294.00" readonly></td>
+                                                    <td><button class="btn btn-danger btn-sm remove-item">X</button></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">Document Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="documentDate" class="form-label">Date</label>
+                                            <input type="date" class="form-control" id="documentDate">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="documentNumber" class="form-label">Invoice No.</label>
+                                            <input type="text" class="form-control" id="documentNumber" placeholder="INV-001">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="yourRef" class="form-label">Your Ref.</label>
+                                            <input type="text" class="form-control" id="yourRef" placeholder="Reference">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="ourRef" class="form-label">Our Ref.</label>
+                                            <input type="text" class="form-control" id="ourRef" placeholder="Reference">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="terms" class="form-label">Terms</label>
+                                            <input type="text" class="form-control" id="terms" value="30 Days">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="pageInfo" class="form-label">Page</label>
+                                            <input type="text" class="form-control" id="pageInfo" value="01 of 01">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label for="notes" class="form-label">Note</label>
+                                            <textarea class="form-control" id="notes" rows="4">1. All cheques should be crossed and made payable to MA M&E SERVICES PTE LTD.
+
+2. Please include the invoice number on your check.
+
+3. Goods are neither returnable nor refundable.
+
+4. All the online transaction
+
+CURRENT ACCOUNT: 12345678 11111 or via pay now to UEN no: 12345678901111</textarea>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label for="signatoryName" class="form-label">Authorized Signature Name</label>
+                                            <input type="text" class="form-control" id="signatoryName" placeholder="Name of authorized signatory">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="actions text-center no-print mb-4">
+                                <button class="btn btn-primary" id="printBtn">Print</button>
+                                <button class="btn btn-success ms-2" id="saveBtn">Save</button>
+                                <button class="btn btn-outline-danger ms-2" id="resetBtn">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Template -->
+                <div class="document-container d-none" id="documentTemplate">
+                    <div class="company-header">
+                        <div class="company-logo-container">
+                            <img id="qtCompanyLogo" class="company-logo" src="" alt="Company Logo">
+                            <div class="company-details">
+                                <div class="company-name" id="qtCompanyName">MA M&E SERVICES PTE LTD</div>
+                                <div id="qtCompanyUen">UEN: 202224572C</div>
+                                <div id="qtCompanyOffice">Office: Singapore</div>
+                                <div id="qtCompanyAddress">Address: 111 North Bridge Road, Singapore</div>
+                                <div id="qtGstRegistration">GST Registration: <span id="qtGstRegNo"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="info-table">
+                        <tr>
+                            <td width="60%">
+                                <strong>TO:</strong> <span id="qtCustomerName"></span><br>
+                                <span id="qtCustomerAddress"></span><br>
+                                <strong>Attn:</strong> <span id="qtCustomerAttn"></span><br>
+                                <strong>Tel:</strong> <span id="qtCustomerTel"></span>
+                            </td>
+                            <td>
+                                <strong>Date:</strong> <span id="qtDocumentDate"></span><br>
+                                <strong>Invoice No.:</strong> <span id="qtDocumentNumber"></span><br>
+                                <strong>Your Ref.:</strong> <span id="qtYourRef"></span><br>
+                                <strong>Our Ref.:</strong> <span id="qtOurRef"></span><br>
+                                <strong>Terms:</strong> <span id="qtTerms"></span><br>
+                                <strong>Page:</strong> <span id="qtPageInfo"></span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Description</th>
+                                <th>QTY</th>
+                                <th>PRICE/UNIT</th>
+                                <th>GST%</th>
+                                <th>AMOUNT</th>
+                            </tr>
+                        </thead>
+                        <tbody id="qtItemsTableBody">
+                            <!-- Items will be added here -->
+                        </tbody>
+                    </table>
+
+                    <div class="total-section">
+                        <div><strong>Subtotal</strong> <span id="qtSubtotal">$3,050.00</span></div>
+                        <div><strong>GST (<span id="qtGstRate">8</span>%)</strong> <span id="qtGst">$244.00</span></div>
+                    </div>
+
+                    <div class="amount-in-words">
+                        <strong>SGD: <span id="qtAmountInWords">Three Thousand Two Hundred Ninety-Four Dollars Only</span></strong>
+                        <div><strong>TOTAL</strong> <span id="qtGrandTotal">$3,294.00</span></div>
+                    </div>
+
+                    <div class="notes-section">
+                        <div><strong>Note:</strong></div>
+                        <div id="qtNotes"></div>
+                    </div>
+
+                    <div class="signature-section">
+                        <div class="signature-box">
+                            <div class="signature-line"></div>
+                            <div class="authorized-signature" id="qtSignatoryName">Authorized Signature</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Report Tab -->
+            <div class="tab-pane fade" id="service-report" role="tabpanel">
+                <div class="service-report-container no-print">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h3>MA M&E SERVICES PTE LTD</h3>
+                            <p>UEN: 202224572C<br>
+                              1 Soon lee street,#04-51 Pioneer Center,Singapore 627605<br>
+                            Office : 65209442 / 90704636, Email: info@mamneservices.com.sg</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h2 class="invoice-title">SERVICE REPORT</h2>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-section">
+                            <div class="mb-3">
+                                <label for="customer-name" class="form-label">Customer Name:</label>
+                                <input type="text" class="form-control" id="customer-name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="customer-address" class="form-label">Address:</label>
+                                <textarea class="form-control" id="customer-address" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-section">
+                            <div class="mb-3">
+                                <label for="sr-number" class="form-label">SR No.:</label>
+                                <input type="text" class="form-control" id="sr-number">
+                            </div>
+                            <div class="mb-3">
+                                <label for="report-date" class="form-label">Date:</label>
+                                <input type="date" class="form-control" id="report-date">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-section">
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location:</label>
+                                <input type="text" class="form-control" id="location">
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-section">
+                            <div class="mb-3">
+                                <label for="attended-by" class="form-label">Attended By:</label>
+                                <input type="text" class="form-control" id="attended-by">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-section">
+                            <div class="mb-3">
+                                <label for="equipment-type" class="form-label">Type of Equipment:</label>
+                                <input type="text" class="form-control" id="equipment-type">
+                            </div>
+                            <div class="mb-3">
+                                <label for="model-serial" class="form-label">Model & Serial No.:</label>
+                                <input type="text" class="form-control" id="model-serial">
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-section">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="time-in" class="form-label">Time In:</label>
+                                    <input type="time" class="form-control" id="time-in">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="time-out" class="form-label">Time Out:</label>
+                                    <input type="time" class="form-control" id="time-out">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">NATURE OF PROBLEM</label>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="breakdown-call">
+                                    <label class="form-check-label" for="breakdown-call">Breakdown Call</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="repair-mod">
+                                    <label class="form-check-label" for="repair-mod">Repair/Modification</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="install-equip">
+                                    <label class="form-check-label" for="install-equip">Installation of Equipment</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="site-inspect">
+                                    <label class="form-check-label" for="site-inspect">Site Inspection</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="prevent-main">
+                                    <label class="form-check-label" for="prevent-main">Preventive Maintenance</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="test-comm">
+                                    <label class="form-check-label" for="test-comm">Testing & Commissioning</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="mb-3">
+                            <label for="nature-complaint" class="form-label">Nature of Complaint:</label>
+                            <textarea class="form-control" id="nature-complaint" rows="2"></textarea>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="asd-work">
+                            <label class="form-check-label" for="asd-work">ASD work</label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">SERVICE DETAILS</label>
+                        <div class="mb-3">
+                            <label for="service-rendered" class="form-label">Service Rendered:</label>
+                            <textarea class="form-control" id="service-rendered" rows="4"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="mb-3">
+                            <label for="materials-supplied" class="form-label">Materials Supplied:</label>
+                            <textarea class="form-control" id="materials-supplied" rows="4"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="mb-3">
+                            <label for="remarks" class="form-label">Remarks:</label>
+                            <textarea class="form-control" id="remarks" rows="4"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="signature-area">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="tech-signature" class="form-label">Technician Signature:</label>
+                                    <canvas id="signature-pad-tech" class="signature-pad" width="400" height="150" style="border:1px solid #ddd;"></canvas>
+                                    <button class="btn btn-sm btn-secondary mt-2" onclick="clearSignature('tech')">Clear Signature</button>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tech-name" class="form-label">Name:</label>
+                                    <input type="text" class="form-control" id="tech-name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tech-date" class="form-label">Date:</label>
+                                    <input type="date" class="form-control" id="tech-date">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="cust-signature" class="form-label">Customer Signature:</label>
+                                    <canvas id="signature-pad-cust" class="signature-pad" width="400" height="150" style="border:1px solid #ddd;"></canvas>
+                                    <button class="btn btn-sm btn-secondary mt-2" onclick="clearSignature('cust')">Clear Signature</button>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cust-name" class="form-label">Name:</label>
+                                    <input type="text" class="form-control" id="cust-name">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cust-date" class="form-label">Date:</label>
+                                    <input type="date" class="form-control" id="cust-date">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Company Stamp:</label>
+                                    <div style="height: 50px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center;">
+                                        <small class="text-muted">Company stamp area</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12 text-center">
+                            <button class="btn btn-primary" onclick="saveServiceReport()">Save Service Report</button>
+                            <button class="btn btn-success" onclick="printServiceReport()">Print Service Report</button>
+                            <button class="btn btn-info" onclick="clearServiceReport()">Clear Form</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Report Print Template -->
+                <div class="service-report-print d-none" id="serviceReportTemplate">
+                    <div class="company-header">
+                        <div class="company-logo-container">
+                            <img id="srCompanyLogo" class="company-logo" src="" alt="Company Logo">
+                            <div class="company-details">
+                                <div class="company-name">MA M&E SERVICES PTE LTD</div>
+                                <div>UEN: 123456</div>
+                                <div>111111HGYGT235HGHJFGHF</div>
+                                <div>Office : 11111111 / 111111, Email:66666666@gmail.com</div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <h2 class="document-title">SERVICE REPORT</h2>
+                        </div>
+                    </div>
+
+                    <table class="info-table">
+                        <tr>
+                            <td width="50%">
+                                <strong>Customer Name:</strong> <span id="srCustomerName"></span><br>
+                                <strong>Address:</strong> <span id="srCustomerAddress"></span>
+                            </td>
+                            <td>
+                                <strong>SR No.:</strong> <span id="srNumber"></span><br>
+                                <strong>Date:</strong> <span id="srDate"></span><br>
+                                <strong>Location:</strong> <span id="srLocation"></span><br>
+                                <strong>Attended By:</strong> <span id="srAttendedBy"></span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table class="info-table">
+                        <tr>
+                            <td width="50%">
+                                <strong>Type of Equipment:</strong> <span id="srEquipmentType"></span><br>
+                                <strong>Model & Serial No.:</strong> <span id="srModelSerial"></span>
+                            </td>
+                            <td>
+                                <strong>Time In:</strong> <span id="srTimeIn"></span><br>
+                                <strong>Time Out:</strong> <span id="srTimeOut"></span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="form-section">
+                        <strong>NATURE OF PROBLEM:</strong>
+                        <div id="srNatureOfProblem"></div>
+                        <div><strong>ASD work:</strong> <span id="srAsdWork"></span></div>
+                    </div>
+
+                    <div class="form-section">
+                        <strong>Nature of Complaint:</strong>
+                        <div id="srNatureComplaint" style="white-space: pre-line;"></div>
+                    </div>
+
+                    <div class="form-section">
+                        <strong>SERVICE DETAILS:</strong>
+                        <div id="srServiceRendered" style="white-space: pre-line;"></div>
+                    </div>
+
+                    <div class="form-section">
+                        <strong>Materials Supplied:</strong>
+                        <div id="srMaterialsSupplied" style="white-space: pre-line;"></div>
+                    </div>
+
+                    <div class="form-section">
+                        <strong>Remarks:</strong>
+                        <div id="srRemarks" style="white-space: pre-line;"></div>
+                    </div>
+
+                    <div class="signature-section">
+                        <div style="display: flex; justify-content: space-between;">
+                            <div class="signature-box">
+                                <strong>Technician Signature:</strong>
+                                <div style="height: 80px; margin-top: 10px;"></div>
+                                <div class="signature-line"></div>
+                                <div class="authorized-signature" id="srTechName"></div>
+                                <div id="srTechDate"></div>
+                            </div>
+                            <div class="signature-box">
+                                <strong>Customer Signature:</strong>
+                                <div style="height: 80px; margin-top: 10px;"></div>
+                                <div class="signature-line"></div>
+                                <div class="authorized-signature" id="srCustName"></div>
+                                <div id="srCustDate"></div>
+                                <div style="margin-top: 20px;">
+                                    <strong>Company Stamp:</strong>
+                                    <div style="height: 50px; border: 1px dashed #000; margin-top: 5px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div class="tab-pane fade" id="history" role="tabpanel">
+                <div class="container my-4 no-print">
+                    <div class="card history-section">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Saved Documents</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs" id="historyTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="invoices-tab" data-bs-toggle="tab" data-bs-target="#invoices" type="button" role="tab">Invoices</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab">Service Reports</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="historyTabContent">
+                                <div class="tab-pane fade show active" id="invoices" role="tabpanel">
+                                    <div id="invoiceHistoryList" class="mt-3"></div>
+                                </div>
+                                <div class="tab-pane fade" id="reports" role="tabpanel">
+                                    <div id="reportHistoryList" class="mt-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5 no-print">
+        <p class="mb-0"> MA M&E Services Pte Ltd. All rights reserved.</p>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+    <script src="kkk.js"></script>
+</body>
+</html>
+       
